@@ -14,7 +14,6 @@ import (
 	"myChat/models"
 	"myChat/routes"
 	"myChat/views"
-	"myChat/ws/go_ws"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,7 +47,7 @@ func main() {
 	//加载模板文件
 	router.SetHTMLTemplate(views.GoTpl)
 	//启动ws服务
-	go_ws.CleanOfflineConn()
+	//go_ws.CleanOfflineConn()
 	log.Println("监听端口", "http://127.0.0.1:"+port)
 	http.ListenAndServe(":"+port, router)
 }

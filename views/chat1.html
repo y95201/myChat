@@ -1,0 +1,1408 @@
+<head>
+    <meta charset="utf-8">
+    <title>聊天室</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        button,
+        textarea,
+        input {
+            border: none;
+            outline: none
+        }
+
+        a,
+        span,
+        div,
+        li,
+        p {
+            font-size: 12px;
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
+        .left-content {
+            width: 20%;
+            height: 100%;
+        }
+
+        .right-content {
+            width: 80%;
+            height: 100%;
+            border-left: 2px solid #e8e9eb;
+        }
+
+        .left-top {
+            width: 100%;
+            height: 7%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 60px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #111;
+            border-bottom: 1px solid #e8e9eb;
+        }
+
+        .right-top {
+            width: 100%;
+            height: 7%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 60px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #111;
+            border-bottom: 1px solid #e8e9eb;
+        }
+
+        .left-bottom {
+            height: 88%;
+            background: #E8E9EB;
+            overflow: auto;
+        }
+
+        .left-bottom ul {
+            overflow-y: auto;
+        }
+
+        .left-bottom li {
+            height: 60px;
+            width: 100%;
+            background: #F1F8FF;
+            padding: 8px 12px;
+            display: flex;
+        }
+
+        .left-bottom li:hover {
+            background: #E4EFFF;
+        }
+
+        .left-bottom li img {
+            width: 42px;
+            height: 42px;
+        }
+
+        .left-bottom li>div {
+            width: 86%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .main-content {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-left: 8px;
+        }
+
+        .main-content .name {
+            color: #111;
+        }
+
+        .main-content .num {
+            height: 16px;
+            width: auto;
+            background: #E83D2A;
+            border-radius: 8px;
+            padding: 0 5px;
+            color: #fff;
+        }
+
+        .main-content .message,
+        .main-content .times {
+            color: #999;
+        }
+
+        .main-content .message {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .default {
+            background: #BDDEFF !important;
+        }
+
+        .top-time {
+            height: 50px;
+            line-height: 60px;
+            text-align: center;
+            color: #666;
+        }
+
+        .chart-box {
+            height: 72%;
+            padding-top: 4px;
+            border-bottom: 1px solid #e8e9eb;
+            overflow-y: auto;
+        }
+
+        .chart {
+            height: auto;
+            padding-bottom: 100px;
+        }
+
+        .chart-main {
+            height: 21%;
+        }
+
+        .news-right-box {
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+        }
+
+        .function {
+            height: 20%;
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .function button {
+            cursor: pointer;
+            margin-right: 20px;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .emo-box {
+            display: none;
+        }
+
+        .emo {
+            width: 195px;
+            height: 190px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            position: absolute;
+            top: -190px;
+            left: 0;
+            border: 1px solid #e8e9eb;
+        }
+
+        .emo div {
+            display: flex;
+            justify-content: center;
+            flex: 20%;
+        }
+
+        .emo img {
+            width: 20px;
+        }
+
+        .chart-input {
+            height: 50%;
+        }
+
+        .chart-input textarea {
+            width: 100%;
+            height: 100%;
+            padding-left: 20px;
+        }
+
+        .send-box {
+            height: 30%;
+            display: flex;
+            align-items: center;
+            float: right;
+        }
+
+        .send {
+            width: 60px;
+            height: 30px;
+            background: #fff;
+            border-radius: 4px;
+            line-height: 30px;
+            font-size: 12px;
+            border: 1px solid #E8E9EB;
+            color: #333;
+            cursor: pointer;
+            margin-right: 30px;
+        }
+
+        .send:hover {
+            border: none;
+            color: #fff;
+            background: #74A0FA;
+        }
+
+        /* 左边聊天内容 */
+        .leftOuter {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .leftOuterTime {
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .leftOuterhead img {
+            width: 42px;
+            height: 42px;
+            margin: 0 10px 0 20px;
+        }
+
+        .leftOuternews {
+            display: inline-flex;
+            font-size: 12px;
+            max-width: 618px;
+            height: auto;
+            background: #74A0FA;
+            border-radius: 4px;
+            align-items: center;
+            padding: 4px 10px;
+            table-layout: fixed;
+            word-break: break-all;
+            overflow: hidden;
+            text-align: left;
+            margin-top: -38px;
+            color: #fff;
+        }
+
+        .leftOuternews img {
+            transform: scale(1.11);
+        }
+
+        .rightOuter {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            margin-top: 20px;
+            flex-direction: row-reverse;
+        }
+
+        .rightOuterTime {
+            color: #666;
+            margin-bottom: 40px;
+            text-align: right;
+        }
+
+        .rightOuterhead img {
+            width: 42px;
+            height: 42px;
+            margin: 0 20px 0 10px;
+        }
+
+        .rightOuternews {
+            display: inline-flex;
+            font-size: 12px;
+            max-width: 618px;
+            height: auto;
+            background: #EB5200;
+            border-radius: 4px;
+            align-items: center;
+            padding: 4px 10px;
+            table-layout: fixed;
+            word-break: break-all;
+            overflow: hidden;
+            text-align: left;
+            color: #fff;
+            margin-top: -38px;
+        }
+
+        .rightOuternews img {
+            transform: scale(1.11);
+        }
+
+        #message {
+            width: 300px;
+            height: 204px;
+            background: #999;
+            position: relative;
+            top: -114px;
+            left: -36px;
+            display: none;
+            border: 1px solid #e8e9eb;
+            padding: 10px 10px 0 10px;
+        }
+
+        #Quicklist {
+            display: flex;
+            flex-direction: column;
+            height: 155px;
+            background: #fff;
+            overflow-y: auto;
+        }
+
+        .quickBox {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 30px;
+        }
+
+        #Quicklist div {
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .quickBox span {
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        #Quicks {
+            width: 100px;
+            height: 30px;
+            background: #fff;
+            border-radius: 4px;
+            line-height: 30px;
+            font-size: 12px;
+            border: 1px solid #E8E9EB;
+            color: #333;
+            cursor: pointer;
+            margin-left: -32px;
+        }
+
+        body {
+            height: 100%;
+        }
+
+        .login-box {
+            display: none;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background: url(https://chat.gangxinbao.cn/uploads/95654685531.png) no-repeat;
+            background-size: cover;
+        }
+
+        .login-main-img {
+            position: absolute;
+            top: 50%;
+            left: 28%;
+            transform: translateY(-50%);
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            margin: -310px 0 0 20px;
+        }
+
+        .login-form div {
+            width: 320px;
+            height: 50px;
+            background: #FFFFFF;
+            border-radius: 10px;
+            line-height: 50px;
+            padding-left: 20px !important;
+            color: #2581FE;
+        }
+
+        .login-form div input {
+            height: 50px;
+            width: 235px;
+            margin-left: 20px;
+            border: 1px solid #fff;
+        }
+
+        .username {
+            margin-bottom: 30px;
+        }
+
+        .password {
+            margin-bottom: 20px;
+        }
+
+        .password input {
+            margin-left: 34px !important;
+        }
+
+        .login-box button {
+            width: 320px;
+            height: 50px;
+            line-height: 50px;
+            background: #2983FE;
+            border-radius: 10px;
+            border: 1px solid #2983FE;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .register {
+            width: 320px;
+            text-align: center;
+            color: #2983FE;
+            font-size: 16px;
+            text-decoration: underline;
+        }
+
+        .news-box-centre {
+            text-align: center;
+        }
+
+        /* 搜索框 */
+        .search {
+            width: 100%;
+            height: 5%;
+            padding: 5px 10px;
+            box-sizing: border-box;
+            position: relative;
+
+        }
+
+        .search_input {
+            width: 100%;
+            height: 30px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 3px 10px;
+            box-sizing: border-box;
+            padding-left: 30px;
+
+        }
+
+        /* 搜索出来的数据 展示部分 */
+        .search_list {
+            position: absolute;
+            left: 0px;
+            width: 100%;
+            height: auto;
+            z-index: 999;
+            background-color: #fff;
+            padding: 0px 10px;
+            box-sizing: border-box;
+            display: none;
+
+
+        }
+
+        .search_item {
+            display: flex;
+            height: 60px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            box-sizing: border-box;
+            align-items: center;
+            background-color: #eee;
+        }
+
+        .search_item>.headPic {
+            width: 40px;
+            height: 40px;
+            margin-right: 20px;
+
+        }
+
+        .search_item>.headPic>img {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 展示客户信息外层的盒子 */
+        .show_client_info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .show_client_info .keywords {
+            color: blue
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            left: 5px;
+            color: #eee
+        }
+
+        .search_box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-box">
+        <div class="login-main-img">
+            <img src="https://chat.gangxinbao.cn/uploads/login-img2.png" alt="">
+            <div class="login-form">
+                <div class="username">用户名<input id="username" type="text"></div>
+                <div class="password">密码<input id="userpass" type="password"></div>
+                <button onclick="guanbi()">登录</button>
+                <a href="" class="register">注册</a>
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <div class="left-content">
+            <div class="left-top">消息列表</div>
+            <div class="search">
+                <div class="search_box">
+                    <svg t="1656294144169" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="https://www.w3.org/2000/svg" p-id="12938" width="200" height="200">
+                        <path
+                            d="M889.6 838.4l-192-192C742.4 595.2 768 524.8 768 448c0-179.2-140.8-320-320-320S128 268.8 128 448s140.8 320 320 320c76.8 0 147.2-25.6 198.4-70.4l192 192c12.8 12.8 32 12.8 44.8 0C896 876.8 896 851.2 889.6 838.4zM192 448c0-140.8 115.2-256 256-256s256 115.2 256 256c0 140.8-115.2 256-256 256S192 588.8 192 448z"
+                            p-id="12939"></path>
+                    </svg>
+                    <input type="text" class="search_input" placeholder="请输入关键词进行搜索" id="search_input">
+                </div>
+                <ul class="search_list">
+                    <!-- <li class="search_item" onclick="fn1(this,11537)">
+                        <div class="headPic">
+                            <img src="" alt="">
+                        </div>
+                        <div class="show_client_info">
+                            <p class="client_name">刘XX</p>
+                            <p class="company_name">钢信宝信<span class="keywords">宝信息</span>技有限公司</p>
+                        </div>
+                    </li> -->
+                </ul>
+            </div>
+            <div class="left-bottom">
+                <ul id="show_clientList">
+                </ul>
+            </div>
+        </div>
+        <div class="right-content">
+            <div class="right-top">客户1</div>
+            <div class="chart-box">
+                <div class="chart">
+                </div>
+            </div>
+            <div class="chart-main">
+                <div class="function">
+                    <button onclick="emo()"><img src="https://chat.gangxinbao.cn/uploads/emoji/emo.png" alt=""></button>
+                    <div class="emo-box" id="jesong_emoticon_layout">
+                        <div class="emo">
+                            <div id="jesong_emoticon_1" class="jesong-emot" style="clear:both;">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/01.png">
+                            </div>
+                            <div id="jesong_emoticon_2" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/02.png">
+                            </div>
+                            <div id="jesong_emoticon_3" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/03.png">
+                            </div>
+                            <div id="jesong_emoticon_4" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/04.png">
+                            </div>
+                            <div id="jesong_emoticon_5" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/05.png">
+                            </div>
+                            <div id="jesong_emoticon_6" class="jesong-emot" style="clear:both;">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/06.png">
+                            </div>
+                            <div id="jesong_emoticon_7" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/07.png">
+                            </div>
+                            <div id="jesong_emoticon_8" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/08.png">
+                            </div>
+                            <div id="jesong_emoticon_9" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/09.png">
+                            </div>
+                            <div id="jesong_emoticon_10" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/10.png">
+                            </div>
+                            <div id="jesong_emoticon_11" class="jesong-emot" style="clear:both;">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/11.png">
+                            </div>
+                            <div id="jesong_emoticon_12" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/12.png">
+                            </div>
+                            <div id="jesong_emoticon_13" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/13.png">
+                            </div>
+                            <div id="jesong_emoticon_14" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/14.png">
+                            </div>
+                            <div id="jesong_emoticon_15" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/15.png">
+                            </div>
+                            <div id="jesong_emoticon_16" class="jesong-emot" style="clear:both;">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/16.png">
+                            </div>
+                            <div id="jesong_emoticon_17" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/17.png">
+                            </div>
+                            <div id="jesong_emoticon_18" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/18.png">
+                            </div>
+                            <div id="jesong_emoticon_19" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/19.png">
+                            </div>
+                            <div id="jesong_emoticon_20" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/20.png">
+                            </div>
+                            <div id="jesong_emoticon_21" class="jesong-emot" style="clear:both;">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/21.png">
+                            </div>
+                            <div id="jesong_emoticon_22" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/22.png">
+                            </div>
+                            <div id="jesong_emoticon_23" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/23.png">
+                            </div>
+                            <div id="jesong_emoticon_24" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/24.png">
+                            </div>
+                            <div id="jesong_emoticon_25" class="jesong-emot">
+                                <img src="https://chat.gangxinbao.cn/uploads/emoji/25.png">
+                            </div>
+                        </div>
+                    </div>
+                    <button id="upload"><img src="https://chat.gangxinbao.cn/uploads/emoji/tu.png" alt=""
+                            style="width: 23px;"></button>
+                    <button onclick="Tuichu()"><img src="https://chat.gangxinbao.cn/uploads/zhuan123.png" alt=""
+                            style="width: 23px;"></button>
+                    <input id="upload_document" type="file" style="display: none;" />
+                    <button><img src="https://chat.gangxinbao.cn/uploads/emoji/jia.png" alt=""
+                            onclick="message()"></button>
+                    <div id="message">
+                        <div id="Quicklist"></div>
+                        <div
+                            style="text-align:center; line-height:30px;float:left;margin: 4px -10px;position: relative;top: 0;left: 220px;">
+                            <button id="Quicks">添加快捷语录</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-input">
+                    <textarea name="" id="text" cols="30" rows="10"></textarea>
+                </div>
+                <div class="send-box">
+                    <input type="hidden" name="user_id" id="user_id"><!-- 用户id -->
+                    <input type="hidden" name="user_name" id="user_name"><!-- 用户名 -->
+                    <input type="hidden" name="customer" id="customer"><!-- 对话用户id -->
+                    <input type="hidden" name="avatar" id="avatar"><!-- 用户头像 -->
+                    <div id="Quick1"
+                        style="position:absolute;left:800;top:200;width:309px;height:200px;color:#fff;background:#74A0FA;filter:alpha(opacity=50);text-align:center;display:none;border-radius:10px;">
+                        添加快捷语录
+                        <textarea id='textarea' rows="9" cols="40"></textarea>
+                        <button style="width:100%; height:50px;border-radius:10px;" onclick="Quick1()">添加</button>
+                    </div>
+
+                    <button class="send" onClick="send3(1)">发送(S)</button>
+                </div>
+            </div>
+            <audio preload="auto|metadata|none" hidden="hidden" controls="controls" id='MessageAudio'>
+                <source src="https://chat.gangxinbao.cn/uploads/13203.wav" /></audio>
+        </div>
+    </div>
+</body>
+<script>
+//http://122.224.80.126/
+    //点击高亮
+    let active = document.querySelectorAll(".left-bottom ul>li")
+    for (const i in active) {
+        active[i].onclick = function () {
+            for (let j = 0; j < active.length; j++) {
+                active[j].classList.remove("default")
+            }
+            active[i].classList.add("default")
+        }
+    }
+    //回车事件
+    window.onkeydown = function (event) {
+        if (event.keyCode == 13) {
+            send3(1)
+        }
+    }
+    //获取提示权限
+    if (window.Notification) {
+        console.log('获取权限')
+        // 获得权限
+        Notification.requestPermission();
+    } else {
+        document.getElementById('result').innerHTML = '浏览器不支持Web Notification';
+    }
+
+    //快捷语录
+    message = function () {
+        $("#message").toggle();
+    }
+    //删除快捷语录
+    function deleteQuick(e, bb) {
+        $.ajax({
+            type: 'post', //method请求方式，get或者post
+            dataType: 'json', //预期服务器返回的数据类型
+            crossDomain: true,
+            url: "https://chat.gangxinbao.cn/chat/quickDell",
+            data: {
+                "id": e
+            }, //表格数据序列化
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                if (result.code == 200) {
+                    bb.parentNode.remove()
+                } else {
+                    alert("删除失败");
+                }
+            },
+            //请求失败，包含具体的错误信息
+            error: function (e) {
+                console.log(e);
+            }
+        });
+    }
+    // 表情的显示隐藏
+    function emo() {
+        $("#jesong_emoticon_layout").toggle();
+    }
+    //当页面没有user_id值时显示登录页面有时则链接服务器
+    var user_id = $('#user_id').val();
+    if (user_id) {
+        check()
+    } else {
+        $(".login-box").css('display', 'block');
+        $(".box").css('display', 'none');
+    }
+    var int = self.setInterval("sendMessageXingTiao()", 30000)
+
+    function sendMessageXingTiao() {
+        var user_id = $('#user_id').val();
+        if (user_id) {
+            var jsons = JSON.stringify({
+                'params': 'PING',
+                'controller':'IndexV1'
+            })
+            send1(jsons);
+        }
+    }
+
+    function guanbi() {
+        var username = $('#username').val();
+        var userpass = $('#userpass').val();
+        if (username.length == "0" && userpass.length == "0") {
+            alert("用户名和密码不能为空");
+        } else {
+            jQuery.support.cors = true;
+            $.ajax({
+                type: 'post', //method请求方式，get或者post
+                dataType: 'json', //预期服务器返回的数据类型
+                crossDomain: true,
+                url: "https://chat.gangxinbao.cn/chat/Login",
+                data: {
+                    "username": username,
+                    "password": userpass
+                }, //表格数据序列化
+                contentType: "application/x-www-form-urlencoded",
+                success: function (result) {
+                    if (result.code == 200) {
+                        $(".login-box").css('display', 'none');
+                        $(".box").css('display', 'flex');
+                        $("#user_id").attr('value', result.result.id);
+                        $("#user_name").attr('value', result.result.name);
+                        $("#avatar").attr('value', result.result.avatar);
+                        check();
+                        Quicklist();
+                    } else {
+                        alert("登录失败");
+                    }
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e);
+                }
+            });
+        }
+    }
+    //表情显示和隐藏
+    $("#jesong_emoticon").click(function () {
+        $("#jesong_emoticon_layout").toggle();
+    });
+    //添加快捷回复显示和隐藏
+    $("#Quicks").click(function () {
+        $("#Quick1").toggle();
+    });
+    //点击表情后获取信息并显示在聊天框
+    $("#jesong_emoticon_1").click(function () {
+        jesong('01');
+    });
+    $("#jesong_emoticon_2").click(function () {
+        jesong('02');
+    });
+    $("#jesong_emoticon_3").click(function () {
+        jesong('03');
+    });
+    $("#jesong_emoticon_4").click(function () {
+        jesong('04');
+    });
+    $("#jesong_emoticon_5").click(function () {
+        jesong('05');
+    });
+    $("#jesong_emoticon_6").click(function () {
+        jesong('06');
+    });
+    $("#jesong_emoticon_7").click(function () {
+        jesong('07');
+    });
+    $("#jesong_emoticon_8").click(function () {
+        jesong('08');
+    });
+    $("#jesong_emoticon_9").click(function () {
+        jesong('09');
+    });
+    $("#jesong_emoticon_10").click(function () {
+        jesong('10');
+    });
+    $("#jesong_emoticon_11").click(function () {
+        jesong('11');
+    });
+    $("#jesong_emoticon_12").click(function () {
+        jesong('12');
+    });
+    $("#jesong_emoticon_13").click(function () {
+        jesong('13');
+    });
+    $("#jesong_emoticon_14").click(function () {
+        jesong('14');
+    });
+    $("#jesong_emoticon_15").click(function () {
+        jesong('15');
+    });
+    $("#jesong_emoticon_16").click(function () {
+        jesong('16');
+    });
+    $("#jesong_emoticon_17").click(function () {
+        jesong('17');
+    });
+    $("#jesong_emoticon_18").click(function () {
+        jesong('18');
+    });
+    $("#jesong_emoticon_19").click(function () {
+        jesong('19');
+    });
+    $("#jesong_emoticon_20").click(function () {
+        jesong('20');
+    });
+    $("#jesong_emoticon_21").click(function () {
+        jesong('21');
+    });
+    $("#jesong_emoticon_22").click(function () {
+        jesong('22');
+    });
+    $("#jesong_emoticon_23").click(function () {
+        jesong('23');
+    });
+    $("#jesong_emoticon_24").click(function () {
+        jesong('24');
+    });
+    $("#jesong_emoticon_25").click(function () {
+        jesong('25');
+    });
+
+    function jesong(id) {
+        $("#jesong_emoticon_layout").css('display', 'none');
+        var code = '[wem:' + id + ']';
+        $("#text").val($("#text").val() + code);
+    }
+
+    function replace_em(str) {
+        str = str.replace(/\</g, '&lt;');
+        str = str.replace(/\>/g, '&gt;');
+        str = str.replace(/\n/g, '<br/>');
+        str = str.replace(/\[wem:([0-9]*)\]/g,
+            '<img width=25 height=25 src="https://chat.gangxinbao.cn/uploads/emoji/$1.png"/>');
+        return str;
+    }
+
+    function send3(type) {
+        var customer_id = $('#customer').val();
+        if (customer_id.length == "0") {
+            alert("聊天对象为空");
+        } else {
+            var date = getCurrentDate();
+            var msg = $('#text').val();
+            var avatar = $('#avatar').val();
+            var regAge = /\[wem:[0-9][1-9]\]/g
+            if (msg.length != 0) {
+                // if (regAge.test(msg)) {
+                //     var msgs = replace_em(msg);
+                //     html = '<div class="rightOuter"><div class="rightOuterhead"><img src="http://cdn.gangxinbao.cn/' +
+                //         avatar + '" alt=""></div><div class="news-right-box"><div class="rightOuterTime">' + date +
+                //         '</div><div class="rightOuternews">' + msgs + '</div></div></div>';
+                //     $(".chart").append(html);
+                // } else {
+                //     html = '<div class="rightOuter"><div class="rightOuterhead"><img src="http://cdn.gangxinbao.cn/' +
+                //         avatar + '" alt=""></div><div class="news-right-box"><div class="rightOuterTime">' + date +
+                //         '</div><div class="rightOuternews">' + msg + '</div></div></div>';
+                //     $('.chart').append(html);
+                // }
+                send2(type);
+            } else {
+                alert("内容不能为空");
+            }
+            bodyScrollBottom()
+        }
+    }
+
+    function getCurrentDate() {
+        var date = new Date;
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        var d = date.getDate();
+        var h = date.getHours();
+        var min = date.getMinutes();
+        var s = date.getSeconds();
+        var str = y + '-' + (m < 10 ? ('0' + m) : m) + '-' + (d < 10 ? ('0' + d) : d) + '  ' + (h < 10 ? ('0' + h) :
+            h) + ':' + (min < 10 ? ('0' + min) : min) + ':' + (s < 10 ? ('0' + s) : s);
+        jQuery(".time").html(str);
+        setTimeout("getCurrentDate(new Date());", 1000);
+        return str;
+    }
+
+    function bodyScrollBottom() {
+        $(".chart-box")[0].scrollTop = $(".chart-box")[0].scrollHeight
+    }
+
+    //客服添加快捷回复
+    function Quick1() {
+        var content = $("#textarea").val();
+        var user_id = $("#user_id").val()
+        if (content.length == "0" || user_id.length == "0") {
+            alert("内容或用户id为空");
+        } else {
+            $.ajax({
+                type: 'post', //method请求方式，get或者post
+                dataType: 'json', //预期服务器返回的数据类型
+                crossDomain: true,
+                url: "https://chat.gangxinbao.cn/chat/quickadd",
+                data: {
+                    "user_id": user_id,
+                    "content": content
+                }, //表格数据序列化
+                contentType: "application/x-www-form-urlencoded",
+                success: function (result) {
+                    if (result.code == 200) {
+                        $("#Quick1").css('display', 'none');
+                        Quicklist();
+                    } else {
+                        alert("登录失败");
+                    }
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e);
+                }
+            });
+        }
+    }
+    //推出用户让其他客服看到
+    function Tuichu() {
+        var name = '客户1';
+        var type = '4';
+        var user_id = $("#user_id").val();
+        var text = '1';
+        var customer = $('#customer').val();
+        var usernames = $(".right-top");
+        usernames.html(name);
+        $(".chart").empty();
+        if (customer) {
+            send2(type, user_id, text, customer);
+            $("#customer").attr('value', '');
+        } else {
+            alert('您当前未选中用户');
+        }
+    }
+    //获取客服快捷回复
+    function Quicklist() {
+        var user_id = $("#user_id").val()
+        if (user_id.length == "0") {
+            alert("内容或用户id为空");
+        } else {
+            $.ajax({
+                type: 'post', //method请求方式，get或者post
+                dataType: 'json', //预期服务器返回的数据类型
+                crossDomain: true,
+                url: "https://chat.gangxinbao.cn/chat/quicklist",
+                data: {
+                    "user_id": user_id
+                }, //表格数据序列化
+                contentType: "application/x-www-form-urlencoded",
+                success: function (result) {
+                    var content = result.result;
+                    $("#Quicklist").empty();
+                    $.each(content, function (i, val) {
+                        html = '<div class="quickBox"><div class ="QuicklistI" value="' + val
+                            .content + '" onClick="QuicklistIu(this)">' + val.content +
+                            '</div> <img src="https://chat.gangxinbao.cn/uploads/emoji/shan.png" onClick="deleteQuick(' +
+                            val.id + ',this)" style="width: 20px;cursor: pointer;"/> </div>';
+                        $('#Quicklist').append(html);
+                    });
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e);
+                }
+            });
+        }
+    }
+    //点击后显示在聊天框内
+    function QuicklistIu(e) {
+        var name = $(e).attr('value');
+        $("#text").val($("#text").val() + name);
+        $('#message')[0].style.display = "none"
+    }
+    //长连接服务器
+    function link(user_id, user_name) {
+        var url = 'wss://chat.gangxinbao.cn';
+        socket = new WebSocket(url);
+        socket.onopen = function () {
+            log1('连接成功');
+            // 设置用户名 信息类型为2 为用户名
+            send2(2, user_id, user_name);
+            // 关闭连接入口
+            $('#link_btn').attr("disabled", true);
+        }
+        socket.onmessage = function (msg) {
+            log(msg.data);
+        }
+        socket.onclose = function () {
+            log1('服务器断开连接');
+            location.reload();
+        }
+        socket.onerror = function () {
+            reconnect(socket); //重连
+        };
+    }
+
+    function check() {
+        var user_id = $('#user_id').val();
+        var user_name = $('#user_name').val();
+        if (user_name == '') {
+            log1('设置用户名后才能进入聊天室！');
+            return false;
+        }
+        if (user_id == '') {
+            log1('设置用户id后才能进入聊天室！');
+            return false;
+        }
+        link(user_id, user_name);
+    }
+    //关闭长链接
+    function dis() {
+        socket.close();
+        socket = null;
+    }
+    //提示信息
+    function log1(var1) {
+        $('.chart').append(var1 + '\r\n');
+    }
+    //显示服务器返回信息
+    function log(var1) {
+        var v = $.parseJSON(var1);
+        if (v) {
+            if (v.msg != undefined) {
+                if (v.ReportError != undefined) {
+                    $("#user_id").attr('value', '');
+                    alert("您已在别处登录");
+                    location.reload();
+                } else {
+                    var user_id = $('#user_id').val();
+                    var avatar = $('#avatar').val();
+                    if (v.system != undefined) {
+                        html = '<div class="centreOuter"><div class="news-box-centre">' + v.msg + '</div></div>';
+                    } else {
+                        if (v.u_id == user_id || v.u_id < 10) {
+                            var message = v.msg
+                            if (message.indexOf("rem")) {
+                                var msg = message.replace(new RegExp("rem", "g"), "00px")
+                            } else {
+                                var msg = message;
+                            }
+                            html =
+                                '<div class="rightOuter"><div class="rightOuterhead"><img src="https://cdn.gangxinbao.cn/' +
+                                avatar + '" alt=""></div><div class="news-right-box"><div class="rightOuterTime">' + v
+                                .created_at + '</div><div class="rightOuternews">' + msg + '</div></div></div>';
+                        } else {
+                            if (v.msg.indexOf("rem")) {
+                                var message = v.msg.replace(new RegExp("rem", "g"), "00px")
+                            } else {
+                                var message = v.msg
+                            }
+                            html =
+                                '<div class="leftOuter"><div class="leftOuterhead"><img src="https://cdn.gangxinbao.cn/' +
+                                v.avatar + '" alt=""></div><div class="news-box"><div class="leftOuterTime">' + v
+                                .created_at + '</div><div class="leftOuternews">' + message + '</div></div></div>';
+                        }
+                    }
+                    $('.chart').append(html);
+                }
+            }
+            if (v.Userlist != undefined) {
+                //判断聊天列表是否有内容
+                if ($("ul").find("div").length > 0) {
+                    $(".left-bottom>ul").empty();
+                    var content = v.Userlist;
+                    $.each(content, function (i, val) {
+                        if (val.count == 0) {
+                            html = '<li onClick="obtain(' + val.u_id + ',this)" data_name="' + val.u_name +
+                                '"><img src="https://cdn.gangxinbao.cn/' + val.u_avatar +
+                                '" alt=""><div><div class="main-content"><div class="name">' + val.u_name +
+                                '</div>' + val.company +
+                                '</div><div class="main-content"><div class="message">' + val.content +
+                                '</div><div class="times">' + val.created_at + '</div></div></div></li>';
+                        } else {
+                            html = '<li onClick="obtain(' + val.u_id + ',this)" data_name="' + val.u_name +
+                                '"><img src="https://cdn.gangxinbao.cn/' + val.u_avatar +
+                                '" alt=""><div><div class="main-content"><div class="name">' + val.u_name +
+                                '</div>' + val.company + '<div class="num">' + val.count +
+                                '</div></div><div class="main-content"><div class="message">' + val.content +
+                                '</div><div class="times">' + val.created_at + '</div></div></div></li>';
+                            // promptSound(val.u_avatar, val.content);
+                        }
+                        $('.left-bottom>ul').append(html + '\r\n');
+                    });
+                } else {
+                    var content = v.Userlist;
+                    $.each(content, function (i, val) {
+                        if (val.count == 0) {
+                            newMessageRemind.stop();
+                            newMessageRemind.show();
+                            html = '<li onClick="obtain(' + val.u_id + ',this)" data_name="' + val.u_name +
+                                '"><img src="https://cdn.gangxinbao.cn/' + val.u_avatar +
+                                '" alt=""><div><div class="main-content"><div class="name">' + val.u_name +
+                                '</div>' + val.company +
+                                '</div><div class="main-content"><div class="message">' + val.content +
+                                '</div><div class="times">' + val.created_at + '</div></div></div></li>';
+                        } else {
+                            html = '<li onClick="obtain(' + val.u_id + ',this)" data_name="' + val.u_name +
+                                '"><img src="https://cdn.gangxinbao.cn/' + val.u_avatar +
+                                '" alt=""><div><div class="main-content"><div class="name">' + val.u_name +
+                                '</div>' + val.company + '<div class="num">' + val.count +
+                                '</div></div><div class="main-content"><div class="message">' + val.content +
+                                '</div><div class="times">' + val.created_at + '</div></div></div></li>';
+                            // promptSound(val.u_avatar, val.content);
+                        }
+                        $('.left-bottom>ul').append(html + '\r\n');
+                    });
+                }
+
+            }
+
+            //搜索
+            if (v.Searchlist != undefined) {
+                var content = v.Searchlist;
+                $.each(content, function (i, val) {
+                    let html = `<li class="search_item" onclick="obtain(${ val.u_id},this)"  data_name='${val.u_name}' >
+                        <div class="headPic">
+                            <img src="https://cdn.gangxinbao.cn/${val.u_avatar ||'images/img.png'}" alt="">
+                        </div>
+                        <div class="show_client_info">
+                            <p class="client_name">${ val.u_name}</p>
+                            <p class="company_name">${val.company}</p>
+                        </div>
+                    </li>`;
+                    // promptSound(val.u_avatar, val.content);
+                    $('.search_list').append(html + '\r\n');
+                    $('.search_list')[0].style.display = 'block'
+                    $('#search_input')[0].value = ''
+                });
+            }
+            bodyScrollBottom()
+        }
+
+    }
+    var newMessageRemind = function () {
+        var i = 0,
+            title = document.title,
+            loop;
+        return {
+            show: function () {
+                loop = setInterval(function () {
+                    i++;
+                    if (i == 1) document.title = '【新消息】' + title;
+                    if (i == 2) document.title = '【　　　】' + title;
+                    if (i == 3) i = 0;
+                }, 800);
+            },
+            stop: function () {
+                clearInterval(loop);
+                document.title = title;
+            }
+        };
+    }();
+
+    //获取聊天信息  id 和 事件源
+    function obtain(id, e) {
+        $('.search_list')[0].style.display = 'none'
+        $('.search_list')[0].innerHTML = ''
+        newMessageRemind.stop();
+        var name = e.getAttribute('data_name');
+        $(".chart").empty();
+        $("#customer").attr('value', id);
+        var usernames = $(".right-top");
+        usernames.html(name);
+        var type = '3';
+        var text = '';
+        var customer = id;
+        var user_id = $('#user_id').val();
+        send2(type, user_id, text, customer);
+    };
+
+    function chats(ob) {
+        var user_id = $('#user_id').val();
+        var customer = $(ob).attr("id");
+        send2(3, user_id, text = '', customer);
+    }
+
+    //提示音
+    function promptSound(avatar, mgs) {
+        //播放提示音
+        var MessageAudio = document.getElementById("MessageAudio");
+        MessageAudio.play();
+        //通知提示
+        var popNotice = function () {
+            if (Notification.permission == "granted") {
+                var notification = new Notification("您有新消息：", {
+                    body: mgs,
+                    icon: 'https://cdn.gangxinbao.cn/' + avatar
+                });
+            }
+        };
+        if (Notification.permission == "granted") {
+            popNotice();
+        } else if (Notification.permission != "denied") {
+            Notification.requestPermission(function (permission) {
+                popNotice();
+            });
+        }
+    }
+
+    function send2(type, user_id = '', text = '', customer = '') {
+        if (text == '') {
+            var msg = $('#text').val();
+        } else {
+            var msg = text;
+        }
+        if (customer == '') {
+            var customer_id = $('#customer').val();
+        } else {
+            var customer_id = customer;
+        }
+        if (user_id == '') {
+            var user_id = $('#user_id').val();
+        } else {
+            var user_id = user_id;
+        }
+        $('#text').val('');
+        var json = JSON.stringify({
+            'type': type,
+            'user_id': user_id,
+            'msg': msg,
+            'customer_id': customer_id,
+            'controller':'IndexV1'
+        })
+        send1(json);
+    }
+    function send1(json) {
+        socket.send(json);
+    }
+    //用户上传图片
+    $("#upload").click(function () {
+        $("#upload_document").click();
+    });
+    //发送base64格式的图片
+    $("#upload_document").change(function () {
+        var file = $(this)[0].files[0];
+        if (!/image\/\w+/.test(file.type)) {
+            log1("请上传图片！");
+            return false;
+        }
+        var reader = new FileReader();
+        if (customer == '') {
+            var customer_id = $('#customer').val();
+        } else {
+            var customer_id = customer;
+        }
+        if (user_id == '') {
+            var user_id = $('#user_id').val();
+        } else {
+            var user_id = user_id;
+        }
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            var customer_id = $('#customer').val();
+            var user_id = $('#user_id').val();
+            var json = JSON.stringify({
+                "type": "1",
+                'user_id': user_id,
+                "msg": this.result,
+                'customer_id': customer_id,
+                'controller':'IndexV1'
+            });
+            log1("\n开始发送文件");
+            send1(json);
+        }
+        return false;
+    });
+
+    // 搜索框按下回车进行搜索
+    $('#search_input').keydown(function (e) {
+        e.stopPropagation()
+        if (e.keyCode == 13) {
+            let keyword = $('#search_input').val()
+            if (keyword.length) {
+                send2(5, user_id, keyword);
+            }
+        }
+    })
+
+
+    function pasteHandler() {
+        document.addEventListener('paste', function (e) {
+            if (!(e.clipboardData && e.clipboardData.items)) {
+                return;
+            }
+            for (var i = 0, len = e.clipboardData.items.length; i < len; i++) {
+                var item = e.clipboardData.items[i];
+                if (item.kind === "file") {
+                    var f = item.getAsFile();
+                    var reader = new FileReader()
+                    reader.onload = function (ev) {
+                        let base64 = ev.target.result
+                        var customer_id = $('#customer').val();
+                        var user_id = $('#user_id').val();
+                        var json = JSON.stringify({
+                            "type": "1",
+                            'user_id': user_id,
+                            "msg": this.result,
+                            'customer_id': customer_id,
+                            'controller':'IndexV1'
+                        });
+                        log1("\n开始发送文件");
+                        send1(json);
+                    }
+                    reader.readAsDataURL(f)
+                }
+            }
+        });
+    }
+
+    window.onload = pasteHandler
+</script>
