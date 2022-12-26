@@ -10,6 +10,7 @@ package user_service
 import (
 	"github.com/gin-gonic/gin"
 	"myChat/models"
+	"myChat/services/cache"
 	"myChat/services/validator"
 	"net/http"
 	"strconv"
@@ -19,49 +20,45 @@ func Login(c *gin.Context) {
 
 	username := c.PostForm("username")
 	pwd := c.PostForm("password")
-	avatarId := c.PostForm("avatar_id")
 
 	var u validator.User
 
 	u.Username = username
 	u.Password = pwd
-	u.AvatarId = avatarId
 
 	if err := c.ShouldBind(&u); err != nil {
 		c.JSON(http.StatusOK, gin.H{"code": 5000, "msg": err.Error()})
 		return
 	}
 
-	user := models.FindUserByField("username", username)
+	user := models.FindChatUserByField("name", username)
 	userInfo := user
-	md5Pwd := helper.Md5Encrypt(pwd)
+	md5Pwd := pwd
+	//md5Pwd := helper.Md5Encrypt(pwd)
 
 	if userInfo.ID > 0 {
 		// json 用户存在
 		// 验证密码
-		if userInfo.Password != md5Pwd {
+		if userInfo.Pass != md5Pwd {
 			c.JSON(http.StatusOK, gin.H{
-				"code": 5000,
+				"code": 0,
 				"msg":  "密码错误",
 			})
 			return
 		}
-
-		models.SaveAvatarId(avatarId, user)
-
 	} else {
-		// 新用户
-		userInfo = models.AddUser(map[string]interface{}{
-			"username":  username,
-			"password":  md5Pwd,
-			"avatar_id": avatarId,
+		c.JSON(http.StatusOK, gin.H{
+			"code": 201,
+			"msg":  "用户不存在",
 		})
+		return
 	}
 
 	if userInfo.ID > 0 {
-		session.SaveAuthSession(c, string(strconv.Itoa(int(userInfo.ID))))
+		cache.SaveAuthCache(string(strconv.Itoa(int(userInfo.ID))))
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
+			"msg":  userInfo,
 		})
 		return
 	} else {
@@ -73,12 +70,12 @@ func Login(c *gin.Context) {
 	}
 }
 
-func GetUserInfo(c *gin.Context) map[string]interface{} {
-	return session.GetSessionUserInfo(c)
-}
-
+//func GetUserInfo(c *gin.Context) map[string]interface{} {
+//	return session.GetSessionUserInfo(c)
+//}
+//
 func Logout(c *gin.Context) {
-	session.ClearAuthSession(c)
+	//session.ClearAuthSession(c)
 	c.Redirect(http.StatusFound, "/")
 	return
 }

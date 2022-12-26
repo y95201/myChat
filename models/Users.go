@@ -56,13 +56,13 @@ type Users struct {
 //	return u
 //}
 //
-//func SaveAvatarId(AvatarId string, u User) User {
-//	u.AvatarId = AvatarId
-//	ChatDB.Save(&u)
-//	return u
-//}
+func SaveAvatarId(u Users) Users {
+	//u.AvatarId = AvatarId
+	ChatDB.Save(&u)
+	return u
+}
 
-func FindUserByField(field, value string) User {
+func FindUserByField(field, value string) Users {
 	var u Users
 
 	if field == "id" || field == "username" {

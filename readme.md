@@ -59,6 +59,7 @@ github.com/gravityblast/fresh    热更服务
 github.com/valyala/fasthttp     http框架
 github.com/spf13/viper      配置文件
 github.com/gorilla/websocket    websocket框架
+github.com/patrickmn/go-cache  cache
 
 //日志
 logfile, err := os.OpenFile("D:/phpstudy_pro/WWW/GoDome/dome/log/test.log", os.O_RDWR|os.O_CREATE, 0666)
