@@ -15,3 +15,10 @@ import (
 func Quicklist(c *gin.Context) {
 	quick_service.List(c)
 }
+func Quickadd(c *gin.Context) {
+	quick_service.Insert(c)
+}
+
+func QuickDell(c *gin.Context) {
+	quick_service.Destroy(c)
+}

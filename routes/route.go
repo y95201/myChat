@@ -23,11 +23,11 @@ func InitRoute() *gin.Engine {
 
 	sr := router.Group("/index")
 	{
-		sr.GET("/index", controller.Index)  //聊天页面
-		sr.POST("/Login", controller.Login) //聊天登录
-		//sr.POST("/quickadd", controller.Quickadd)   //快捷语录添加
+		sr.GET("/index", controller.Index)          //聊天页面
+		sr.POST("/Login", controller.Login)         //聊天登录
+		sr.POST("/quickadd", controller.Quickadd)   //快捷语录添加
 		sr.POST("/quicklist", controller.Quicklist) //快捷语录列表
-		//sr.POST("/quickDell", controller.QuickDell) //快捷语录删除
+		sr.POST("/quickDell", controller.QuickDell) //快捷语录删除
 		//sr.POST("/orderlist", controller.Orderlist) //订单列表
 	}
 	return router

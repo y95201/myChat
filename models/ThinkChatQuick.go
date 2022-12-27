@@ -16,12 +16,36 @@ type ThinkChatQuick struct {
 func (m *ThinkChatQuick) TableName() string {
 	return "think_chat_quick"
 }
-func GetChatQuickByList(field, value string) ThinkChatQuick {
-	var u ThinkChatQuick
+func GetChatQuickByList(field, value string) []ThinkChatQuick {
 
-	if field == "name" {
-		ChatDB.Where(field+" = ?", value).Find(&u)
+	var articles []ThinkChatQuick
+
+	if field == "userId" {
+		ChatDB.Where(field+" = ?", value).Find(&articles)
 	}
 
-	return u
+	return articles
+}
+func SetChatQuickByCreate(value interface{}) ThinkChatQuick {
+	var m ThinkChatQuick
+
+	m.UserId = value.(map[string]interface{})["user_id"].(int)
+	m.State = value.(map[string]interface{})["state"].(int)
+	m.Content = value.(map[string]interface{})["content"].(string)
+	m.CreatedAt = time.Now()
+	m.UpdatedAt = time.Now()
+
+	ChatDB.Create(&m)
+	return m
+}
+
+func SetChatQuickByDelete(field, value string) []ThinkChatQuick {
+
+	var articles []ThinkChatQuick
+
+	if field == "id" {
+		ChatDB.Where(field+" = ?", value).Delete(&articles)
+	}
+
+	return articles
 }
