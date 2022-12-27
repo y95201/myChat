@@ -28,7 +28,7 @@ func InitRoute() *gin.Engine {
 		sr.POST("/quickadd", controller.Quickadd)   //快捷语录添加
 		sr.POST("/quicklist", controller.Quicklist) //快捷语录列表
 		sr.POST("/quickDell", controller.QuickDell) //快捷语录删除
-		//sr.POST("/orderlist", controller.Orderlist) //订单列表
+		sr.POST("/orderlist", controller.Orderlist) //订单列表
 	}
 	return router
 }

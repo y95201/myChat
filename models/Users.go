@@ -72,6 +72,14 @@ func FindUserByField(field, value string) Users {
 	return u
 }
 
+func GetUserByFieldValue(field string, id int) Users {
+	var u Users
+
+	ChatDB.Select(field).Where("id = ?", id).Take(&u)
+
+	return u
+}
+
 //func GetOnlineUserList(uids []float64) []map[string]interface{} {
 //	var results []map[string]interface{}
 //	ChatDB.Where("id IN ?", uids).Find(&results)
