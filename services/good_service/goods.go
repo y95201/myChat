@@ -8,12 +8,19 @@
 package good_service
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"myChat/models"
 	"net/http"
 	"strconv"
 )
+
+type sortSons struct {
+	models.Goods
+
+	TotalWeight  int
+	TotalAmount  int
+	TotalDeposit int
+}
 
 func UserOrderList(c *gin.Context) {
 	//2:定金、3:发现好物 4:行情锁价 5定金订货
@@ -27,21 +34,20 @@ func UserOrderList(c *gin.Context) {
 	models.GetUserByFieldValue("id", IntUserId)
 	SellGoods := models.GetGoodsBylist(IntUserId)
 
-	if len(SellGoods) > 0 {
-		for key, value := range SellGoods {
+	//if len(SellGoods) > 0 {
+	//}
+	//fmt.Println(reflect.TypeOf(SellGoods))
+	//var attrs = map[int]interface{}{}
 
-			fmt.Printf("key:%d  value:%d\n", key, value['contract'])
+	//for i, v := range SellGoods {
+	//fmt.Println(i, "-", v)
+	//childrenCount := 56
+	//total_amount := 456
+	//total_deposit := 789
+	//attrs[i] = sortSons{Goods: v, TotalWeight: childrenCount, TotalAmount: total_amount, TotalDeposit: total_deposit}
 
-		}
-		//for i := 0; i < len(SellGoods); i++ {
-		//	fmt.Printf(SellGoods[i]['contract'])
-		//lists := models.ProductInformation()
-		//SellGoods[i]['goods'] := lists
-		//SellGoods[i]->total_weight =  round(array_sum(array_column($lists, 'total_weight')),3);
-		//SellGoods[i]->total_amount =  round(array_sum(array_column($lists, 'order_money')),2);
-		//SellGoods[i]->total_deposit = $this->DepositAlgorithm($lists);
-		//}
-	}
+	//}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  SellGoods,

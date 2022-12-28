@@ -1,3 +1,2 @@
-# myChat/services/good_service
-services\good_service\goods.go:33:47: invalid operation: value[('\x00' + unknown)] (type models.Goods does not support indexing)
-services\good_service\goods.go:33:48: more than one character in rune literal
+# myChat/models
+models\Goods.go:80:18: g[0].id undefined (type Goods has no field or method id, but does have ID)

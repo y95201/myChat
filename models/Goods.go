@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -76,6 +77,17 @@ func GetGoodsBylist(UserIdS int) []Goods {
 		Group("contract").
 		Order("created_at desc").
 		Find(&g)
-
+	fmt.Println(g[0].id)
 	return g
+}
+func ProductInformation(contract string) {
+	result := map[string]interface{}{}
+	ChatDB.Table("goods").
+		Where("note = ?", contract).
+		Select("goods.id", "goods.name", "goods.texture", "goods.spec",
+			"goods.price", "goods.number", "goods.weight_ton", "goods.unit",
+			"goods.total_weight", "goods.usage_time", "goods.user_id",
+			"round(goods.price * goods.total_weight , 2) as order_money").
+		Scan(&result)
+	return
 }
