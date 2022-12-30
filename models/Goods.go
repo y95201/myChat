@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -77,7 +76,7 @@ func GetGoodsBylist(UserIdS int) []Goods {
 		Group("contract").
 		Order("created_at desc").
 		Find(&g)
-	fmt.Println(g[0].id)
+
 	return g
 }
 func ProductInformation(contract string) {

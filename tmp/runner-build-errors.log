@@ -1,2 +1,0 @@
-# myChat/models
-models\Goods.go:80:18: g[0].id undefined (type Goods has no field or method id, but does have ID)
