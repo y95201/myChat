@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -61,7 +62,6 @@ func GetGoodsBylist(UserIdS int) []Goods {
 
 	nTime := time.Now()
 	yesTime := nTime.AddDate(0, 0, -1)
-
 	var g []Goods
 	ChatDB.Select("any_value(goods.id) as id",
 		"any_value(goods.note) as contract",
@@ -76,7 +76,14 @@ func GetGoodsBylist(UserIdS int) []Goods {
 		Group("contract").
 		Order("created_at desc").
 		Find(&g)
-
+	result := make([][]string, len(g))
+	for i, p := range g {
+		result[i] = []string{fmt.Sprintf("%d", p.ID),
+			fmt.Sprintf("%d", p.Contract),
+			fmt.Sprintf("%d", p.Count),
+			fmt.Sprintf("%d", p.OrderType),
+			fmt.Sprintf("%d", p.CreatedAt)}
+	}
 	return g
 }
 func ProductInformation(contract string) {

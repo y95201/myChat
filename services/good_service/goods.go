@@ -8,7 +8,6 @@
 package good_service
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"myChat/models"
 	"net/http"
@@ -34,21 +33,7 @@ func UserOrderList(c *gin.Context) {
 	IntUserId, _ := strconv.Atoi(UserId)
 	models.GetUserByFieldValue("id", IntUserId)
 	SellGoods := models.GetGoodsBylist(IntUserId)
-
-	//if len(SellGoods) > 0 {
-	//}
-
-	//var attrs = map[int]interface{}{}
-
-	for i, v := range SellGoods {
-		//fmt.Println(reflect.TypeOf(SellGoods))
-		fmt.Println(i, "-", v)
-		//childrenCount := 56
-		//total_amount := 456
-		//total_deposit := 789
-		//attrs[i] = sortSons{Goods: v, TotalWeight: childrenCount, TotalAmount: total_amount, TotalDeposit: total_deposit}
-
-	}
+	// 将查询结果转换为二维数组
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
