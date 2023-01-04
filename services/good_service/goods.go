@@ -8,6 +8,7 @@
 package good_service
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"myChat/models"
 	"net/http"
@@ -33,6 +34,11 @@ func UserOrderList(c *gin.Context) {
 	IntUserId, _ := strconv.Atoi(UserId)
 	models.GetUserByFieldValue("id", IntUserId)
 	SellGoods := models.GetGoodsBylist(IntUserId)
+	//result := make([][]string, len(SellGoods))
+	for _, p := range SellGoods {
+		fmt.Println(p)
+
+	}
 	// 将查询结果转换为二维数组
 
 	c.JSON(http.StatusOK, gin.H{
@@ -41,6 +47,18 @@ func UserOrderList(c *gin.Context) {
 	})
 
 	return
+}
+func arraySum(array []Good, field string) float32 {
+	sum := float32(0)
+	for i := range array {
+		switch field {
+		case "TotalWeight":
+			sum += array[i].TotalWeight
+		case "OrderMoney":
+			sum += array[i].OrderMoney
+		}
+	}
+	return sum
 }
 
 //func ArraySumColumn(data interface{}, column string) (int)

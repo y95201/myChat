@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+	"math"
+	"strconv"
 	"time"
 )
 
@@ -50,50 +52,158 @@ import (
 //	UpdatedAt        time.Time `time_format:"2006-01-02 15:04:05"`
 //	DpdatedAt        time.Time `time_format:"2006-01-02 15:04:05"`
 //}
-type Goods struct {
-	ID        uint
-	Contract  string    `json:"contract"`
-	Count     int       `json:"count"`
-	OrderType int       `json:"order_type"`
-	CreatedAt time.Time `time_format:"2006-01-02 15:04:05"`
+
+type Good struct {
+	ID          int       `json:"id"`
+	UserID      int       `json:"user_id"`
+	Name        string    `json:"name"`
+	Texture     string    `json:"texture"`
+	Spec        string    `json:"spec"`
+	Contract    string    `json:"contract"`
+	Price       float32   `json:"price"`
+	Number      int       `json:"number"`
+	WeightTon   float32   `json:"weight_ton"`
+	Unit        string    `json:"unit"`
+	TotalWeight float32   `json:"total_weight"`
+	UsageTime   time.Time `time_format:"2006-01-02 15:04:05"`
+	CreatedAt   time.Time `time_format:"2006-01-02 15:04:05"`
+	State       int       `json:"state"`
+	Type        int       `json:"type"`
+	Note        string    `json:"note"`
 }
 
-func GetGoodsBylist(UserIdS int) []Goods {
+func GetGoodsBylist(UserIdS int) []Good {
+	var sellGoods []Good
+	ChatDB.Where("goods.user_id = ?", UserIdS).
+		Where("goods.state = ?", 1).
+		Where("goods.number != ?", 0).
+		Where("goods.type = ?", 2).
+		Where("goods.created_at > ?", time.Now().AddDate(0, 0, -1)).
+		Select("any_value(goods.id) as id, " +
+			"any_value(goods.note) as contract, " +
+			"COUNT(goods.note) AS count, " +
+			"any_value(goods.created_at) as created_at, " +
+			"any_value(goods.type) as order_type").
+		Group("goods.note").
+		Order("goods.created_at DESC").
+		Find(&sellGoods)
+	if len(sellGoods) > 0 {
+		for i := range sellGoods {
+			var lists []Good
+			ChatDB.Where("goods.note = ?", sellGoods[i].Contract).
+				Select("goods.id, goods.name, goods.texture, goods.spec, goods.price, goods.number, goods.weight_ton, goods.unit, goods.total_weight, goods.usage_time, goods.user_id , round(goods.price * goods.total_weight , 2) as order_money").
+				Find(&lists)
 
-	nTime := time.Now()
-	yesTime := nTime.AddDate(0, 0, -1)
-	var g []Goods
-	ChatDB.Select("any_value(goods.id) as id",
-		"any_value(goods.note) as contract",
-		"COUNT(goods.note) AS count",
-		"any_value(goods.created_at) as created_at",
-		"any_value(goods.type) as order_type").
-		Where("goods.user_id = ? "+
-			"AND goods.state = ? "+
-			"AND goods.number != ? "+
-			"AND goods.type = ? "+
-			"AND goods.created_at > ?", UserIdS, "1", "0", "2", yesTime).
-		Group("contract").
-		Order("created_at desc").
-		Find(&g)
-	result := make([][]string, len(g))
-	for i, p := range g {
-		result[i] = []string{fmt.Sprintf("%d", p.ID),
-			fmt.Sprintf("%d", p.Contract),
-			fmt.Sprintf("%d", p.Count),
-			fmt.Sprintf("%d", p.OrderType),
-			fmt.Sprintf("%d", p.CreatedAt)}
+			sellGoods[i].Goods = lists
+			sellGoods[i].TotalWeight = math.Round(arraySum(lists, "TotalWeight"), 3)
+			sellGoods[i].TotalAmount = math.Round(arraySum(lists, "OrderMoney"), 2)
+			sellGoods[i].TotalDeposit = this.DepositAlgorithm(lists)
+		}
 	}
-	return g
+	return sellGoods
 }
-func ProductInformation(contract string) {
-	result := map[string]interface{}{}
-	ChatDB.Table("goods").
-		Where("note = ?", contract).
-		Select("goods.id", "goods.name", "goods.texture", "goods.spec",
-			"goods.price", "goods.number", "goods.weight_ton", "goods.unit",
-			"goods.total_weight", "goods.usage_time", "goods.user_id",
-			"round(goods.price * goods.total_weight , 2) as order_money").
-		Scan(&result)
-	return
+func arraySum(array []Goods, field string) float32 {
+	sum := float32(0)
+	for i := range array {
+		switch field {
+		case "TotalWeight":
+			sum += array[i].TotalWeight
+		case "OrderMoney":
+			sum += array[i].OrderMoney
+		}
+	}
+	return sum
 }
+func (this *Type) DepositAlgorithm(Orders [][]string) int {
+	money := 0
+	if Orders[0]["total_weight"] != "" {
+		if Orders[0]["usage_time"] != "" {
+			// new algorithm
+			if this.IfUserId(Orders[0]["user_id"]) == 1 {
+				orderMoney := int(math.Ceil(sum(column(Orders, "total_weight")))) * 2
+				usageMoney := strToInt(Orders[0]["usage_time"]) * 1
+				money = orderMoney + usageMoney
+			} else {
+				orderMoney := int(math.Ceil(sum(column(Orders, "total_weight")))) * this.ReserveAmount()
+				usageMoney := strToInt(Orders[0]["usage_time"]) * this.MoneyEveryDay()
+				money = orderMoney + usageMoney
+			}
+		} else {
+			if this.IfUserId(Orders[0]["user_id"]) == 1 {
+				money = int(math.Ceil(sum(column(Orders, "total_weight")))) * 2
+			} else {
+				money = int(math.Ceil(sum(column(Orders, "total_weight")))) * this.ReserveAmount()
+			}
+		}
+	} else {
+		return fmt.Errorf("订单重量为空")
+	}
+	return money
+}
+
+func (this *Type) ReserveAmount() int {
+	return 200
+}
+
+func (this *Type) MoneyEveryDay() int {
+	return 100
+}
+
+func (this *Type) IfUserId(userId string) int {
+	switch userId {
+	case "20790": // 18458315669
+		return 1
+	case "19197": // 18368150019
+		return 1
+	case "18858": // 18309852787
+		return 1
+	case "11422": // 18037123430
+		return 1
+	case "18582": // 18857132529
+		return 1
+	case "22708": // 18370026863 15958125229 22708
+		return 1
+	case "12179": // 17858642023
+		return 1
+	case "11385": // 15191660810
+		return 1
+	default:
+		return 2
+	}
+}
+
+func sum(nums []int) int {
+	total := 0
+	for _, num := range nums {
+		total += num
+	}
+	return total
+}
+
+func column(matrix [][]string, i int) []int {
+	column := make([]int, len(matrix))
+	for j, row := range matrix {
+		column[j] = strToInt(row[i])
+	}
+	return column
+}
+
+func strToInt(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+//func ProductInformation(contract string) {
+//	result := map[string]interface{}{}
+//	ChatDB.Table("goods").
+//		Where("note = ?", contract).
+//		Select("goods.id", "goods.name", "goods.texture", "goods.spec",
+//			"goods.price", "goods.number", "goods.weight_ton", "goods.unit",
+//			"goods.total_weight", "goods.usage_time", "goods.user_id",
+//			"round(goods.price * goods.total_weight , 2) as order_money").
+//		Scan(&result)
+//	return
+//}
