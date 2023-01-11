@@ -8,9 +8,11 @@
 package good_service
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"myChat/models"
 	"net/http"
+	"reflect"
 	"strconv"
 )
 
@@ -30,32 +32,124 @@ func UserOrderList(c *gin.Context) {
 		return
 	}
 	IntUserId, _ := strconv.Atoi(UserId)
-	models.GetUserByFieldValue("id", IntUserId)
-	SellGoods := models.GetGoodsBylist(IntUserId)
+	//models.GetUserByFieldValue("id", IntUserId)
+	//SellGoods := models.GetSellGoodsBylist(IntUserId)
+	//if len(SellGoods) > 0 {
+	//	for i := range SellGoods {
+	//		var lists []models.Good
+	//		lists = models.GetDetailedProductList(SellGoods[i].Contract)
+	//		SellGoods[i].Good = lists
+	//		SellGoods[i].TotalWeight = ArraySum(lists, "TotalWeight")
+	//		SellGoods[i].TotalAmount = ArraySum(lists, "OrderMoney")
+	//		SellGoods[i].TotalDeposit = DepositAlgorithm(lists)
+	//	}
+	//}
+
+	BuyGoods := models.GetBuyGoodsBylist(IntUserId)
+	if len(BuyGoods) > 0 {
+		for i := range BuyGoods {
+			var lists []models.Good
+			lists = models.GetDetailedProductList(BuyGoods[i].Contract)
+			BuyGoods[i].Good = lists
+			BuyGoods[i].TotalWeight = ArraySum(lists, "TotalWeight")
+			BuyGoods[i].TotalAmount = ArraySum(lists, "OrderMoney")
+			BuyGoods[i].TotalDeposit = DepositAlgorithm(lists)
+		}
+	}
+
 	// 将查询结果转换为二维数组
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"msg":  SellGoods,
+		"msg":  BuyGoods,
 	})
 
 	return
 }
+func ArraySum(array []models.Good, field string) float32 {
+	sum := float32(0)
+	for i := range array {
+		switch field {
+		case "TotalWeight":
+			sum += array[i].TotalWeight
+		case "OrderMoney":
+			sum += array[i].OrderMoney
+		}
+	}
+	return sum
+}
 
-//func ArraySumColumn(data interface{}, column string) (int)
-//	// 定义一个 map 用于存储统计结果
-//	m := make(map[string]int)
+func DepositAlgorithm(Orders []models.Good) float32 {
+	var money float32 = 0
+
+	if fmt.Sprintf("%f", Orders[0].TotalWeight) != "" {
+		if fmt.Sprintf("%v", Orders[0].UsageTime) != "0" {
+			if IfUserId(Orders[0].UserId) == 1 {
+				orderMoney := SumAndColumn(Orders, "TotalWeight") * 2
+				usageMoney := Orders[0].UsageTime * MoneyEveryDay()
+				money = orderMoney + float32(usageMoney)
+			} else {
+				orderMoney := SumAndColumn(Orders, "TotalWeight") * ReserveAmount()
+				usageMoney := Orders[0].UsageTime * MoneyEveryDay()
+				money = orderMoney + float32(usageMoney)
+			}
+		} else {
+			if IfUserId(Orders[0].UserId) == 1 {
+				money = SumAndColumn(Orders, "TotalWeight") * 2
+			} else {
+				money = SumAndColumn(Orders, "TotalWeight") * ReserveAmount()
+			}
+		}
+	}
+	//fmt.Println(matrix)
+	return money
+}
+func ReserveAmount() float32 {
+	return 200
+}
+func SumAndColumn(matrix []models.Good, fields string) float32 {
+	var columns float32 = 0
+	for _, row := range matrix {
+		v := reflect.TypeOf(row)
+		values := reflect.ValueOf(row)
+		count := v.NumField()
+		for i := 0; i < count; i++ {
+			field := v.Field(i)
+			value := values.Field(i)
+			if field.Name == fields {
+				iVal := value.Interface()
+				num2 := iVal.(float32)
+				columns += num2
+			}
+		}
+	}
+	return columns
+}
+
 //
-//	// 定义要统计的 key
-//	key := column
-//	// 使用嵌套的 for 循环遍历数组
-//	for i := 0; i < 3; i++ {
-//		for j := 0; j < 3; j++ {
-//			for k, v := range data[i][j] {
-//			// 如果是指定的 key，就将值相加
-//			if k == key {
-//				m[k] += v
-//			}
-//		}
-//	}
-//	return m[key]
-//}
+func MoneyEveryDay() int {
+	return 100
+}
+
+//
+func IfUserId(userId string) int {
+	switch userId {
+	case "20790": // 18458315669
+		return 1
+	case "19197": // 18368150019
+		return 1
+	case "18858": // 18309852787
+		return 1
+	case "11422": // 18037123430
+		return 1
+	case "18582": // 18857132529
+		return 1
+	case "22708": // 18370026863 15958125229 22708
+		return 1
+	case "12179": // 17858642023
+		return 1
+	case "11385": // 15191660810
+		return 1
+	default:
+		return 2
+	}
+}
