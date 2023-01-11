@@ -1,2 +1,0 @@
-# myChat/models
-models\Goods.go:102:11: cannot use sumWeight * ReserveAmount() (type int) as type float32 in assignment

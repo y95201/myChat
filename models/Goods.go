@@ -30,7 +30,7 @@ type Good struct {
 	WeightTon   string  `json:"weight_ton"`
 	Unit        string  `json:"unit"`
 	TotalWeight float32 `json:"total_weight"`
-	UsageTime   string  `json:"usage_time"`
+	UsageTime   int     `json:"usage_time"`
 	UserId      string  `json:"user_id"`
 	OrderMoney  float32 `json:"order_money"`
 }
@@ -85,18 +85,19 @@ func DepositAlgorithm(Orders []Good) float32 {
 	var money float32 = 0
 
 	if fmt.Sprintf("%f", Orders[0].TotalWeight) != "" {
-		if Orders[0].UsageTime != "" {
+		if fmt.Sprintf("%v", Orders[0].UsageTime) != "0" {
 			if IfUserId(Orders[0].UserId) == 1 {
-				//orderMoney := int(math.Ceil(sum())) * 2
-				//UsageMoney := strToInt(Orders[0].UsageTime) * 1
-				//money = orderMoney + UsageMoney
-				SumAndColumn(Orders, "TotalWeight")
+				orderMoney := SumAndColumn(Orders, "TotalWeight") * 2
+				usageMoney := Orders[0].UsageTime * MoneyEveryDay()
+				money = orderMoney + float32(usageMoney)
+			} else {
+				orderMoney := SumAndColumn(Orders, "TotalWeight") * ReserveAmount()
+				usageMoney := Orders[0].UsageTime * MoneyEveryDay()
+				money = orderMoney + float32(usageMoney)
 			}
 		} else {
-
 			if IfUserId(Orders[0].UserId) == 1 {
-				SumAndColumn(Orders, "TotalWeight")
-
+				money = SumAndColumn(Orders, "TotalWeight") * 2
 			} else {
 				money = SumAndColumn(Orders, "TotalWeight") * ReserveAmount()
 			}
@@ -105,6 +106,7 @@ func DepositAlgorithm(Orders []Good) float32 {
 	//fmt.Println(matrix)
 	return money
 }
+
 func ReserveAmount() float32 {
 	return 200
 }
@@ -121,20 +123,10 @@ func SumAndColumn(matrix []Good, fields string) float32 {
 				iVal := value.Interface()
 				num2 := iVal.(float32)
 				columns += num2
-				fmt.Println(columns)
 			}
 		}
 	}
 	return columns
-}
-
-//
-func sum(nums []int) int {
-	total := 0
-	for _, num := range nums {
-		total += num
-	}
-	return total
 }
 
 func ArraySum(array []Good, field string) float32 {

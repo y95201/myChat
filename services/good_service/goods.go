@@ -24,7 +24,6 @@ type sortSons struct {
 
 func UserOrderList(c *gin.Context) {
 	//2:定金、3:发现好物 4:行情锁价 5定金订货
-
 	UserId := c.PostForm("user_id")
 	if len(UserId) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "参数为空"})
