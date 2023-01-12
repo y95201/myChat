@@ -53,10 +53,13 @@ func GetSellGoodsBylist(UserIdS int) []Goods {
 		Find(&sellGoods)
 	return sellGoods
 }
-func GetDetailedProductList(Contract string) []Good {
+func GetDetailedProductList(Contract string, wheres string) []Good {
 	var list []Good
+	where := map[string]interface{}{}
+	where[wheres] = Contract
 	ChatDB.
-		Where("goods.note = ?", Contract).
+		Where(where).
+		Joins("left join orders on orders.goods_id = goods.id").
 		Select("goods.id, " +
 			"goods.name, " +
 			"goods.texture, " +
@@ -91,4 +94,21 @@ func GetBuyGoodsBylist(UserIdS int) []Goods {
 		Order("created_at DESC").
 		Find(&sellGoods)
 	return sellGoods
+}
+func GetDepositOrderList(contract []string) []Goods {
+	var depositGoods []Goods
+	where := map[string]interface{}{}
+	where["orders.contract"] = contract
+	ChatDB.
+		Where(where).
+		Joins("left join orders on orders.goods_id = goods.id").
+		Select("any_value(goods.id) as id," +
+			"any_value(orders.contract) as contract," +
+			"COUNT(orders.contract) AS count," +
+			"any_value(goods.created_at) as created_at," +
+			"any_value(goods.type) as order_type").
+		Group("orders.contract").
+		Order("created_at DESC").
+		Find(&depositGoods)
+	return depositGoods
 }

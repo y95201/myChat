@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 type sortSons struct {
@@ -32,35 +33,73 @@ func UserOrderList(c *gin.Context) {
 		return
 	}
 	IntUserId, _ := strconv.Atoi(UserId)
-	//models.GetUserByFieldValue("id", IntUserId)
-	//SellGoods := models.GetSellGoodsBylist(IntUserId)
-	//if len(SellGoods) > 0 {
-	//	for i := range SellGoods {
-	//		var lists []models.Good
-	//		lists = models.GetDetailedProductList(SellGoods[i].Contract)
-	//		SellGoods[i].Good = lists
-	//		SellGoods[i].TotalWeight = ArraySum(lists, "TotalWeight")
-	//		SellGoods[i].TotalAmount = ArraySum(lists, "OrderMoney")
-	//		SellGoods[i].TotalDeposit = DepositAlgorithm(lists)
-	//	}
-	//}
+	models.GetUserByFieldValue("id", IntUserId)
+
+	GoodList := map[string]interface{}{}
+
+	SellGoods := models.GetSellGoodsBylist(IntUserId)
+	if len(SellGoods) > 0 {
+		for i := range SellGoods {
+			var lists []models.Good
+			lists = models.GetDetailedProductList(SellGoods[i].Contract, "goods.note")
+			SellGoods[i].Good = lists
+			SellGoods[i].TotalWeight = ArraySum(lists, "TotalWeight")
+			SellGoods[i].TotalAmount = ArraySum(lists, "OrderMoney")
+			SellGoods[i].TotalDeposit = DepositAlgorithm(lists)
+		}
+	}
+	GoodList["sellGoods"] = SellGoods
 
 	BuyGoods := models.GetBuyGoodsBylist(IntUserId)
 	if len(BuyGoods) > 0 {
 		for i := range BuyGoods {
 			var lists []models.Good
-			lists = models.GetDetailedProductList(BuyGoods[i].Contract)
+			lists = models.GetDetailedProductList(BuyGoods[i].Contract, "orders.contract")
 			BuyGoods[i].Good = lists
 			BuyGoods[i].TotalWeight = ArraySum(lists, "TotalWeight")
 			BuyGoods[i].TotalAmount = ArraySum(lists, "OrderMoney")
 			BuyGoods[i].TotalDeposit = DepositAlgorithm(lists)
 		}
 	}
+	GoodList["buyGoods"] = BuyGoods
+
+	var DepositGoods []models.Goods
+	good := models.GetDepositOrderInformation(IntUserId)
+	GoodList["depositGoods"] = good
+	if len(good) > 0 {
+		var contract []string
+		for i := range good {
+			UsageTime := good[i].UsageTime * 86400
+			times := good[i].CreatedAt
+			getTime := times.Unix() + int64(UsageTime)
+			if time.Now().Unix() < getTime {
+				contract = append(contract, good[i].Contract)
+			}
+		}
+		if fmt.Sprintf("%f", contract) != "" {
+			DepositGoods = models.GetDepositOrderList(contract)
+			if len(DepositGoods) > 0 {
+				for i := range DepositGoods {
+					var lists []models.Good
+					lists = models.GetDetailedProductList(DepositGoods[i].Contract, "orders.contract")
+					DepositGoods[i].Good = lists
+					DepositGoods[i].TotalWeight = ArraySum(lists, "TotalWeight")
+					DepositGoods[i].TotalAmount = ArraySum(lists, "OrderMoney")
+					DepositGoods[i].TotalDeposit = DepositAlgorithm(lists)
+				}
+				GoodList["depositGoods"] = DepositGoods
+			} else {
+				GoodList["depositGoods"] = contract
+			}
+		} else {
+			GoodList["depositGoods"] = contract
+		}
+	}
 
 	// 将查询结果转换为二维数组
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"msg":  BuyGoods,
+		"msg":  GoodList,
 	})
 
 	return
