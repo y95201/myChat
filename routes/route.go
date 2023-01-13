@@ -23,6 +23,7 @@ func InitRoute() *gin.Engine {
 
 	sr := router.Group("/index")
 	{
+		sr.GET("/wx", controller.WsHandle)
 		sr.GET("/index", controller.Index)          //聊天页面
 		sr.POST("/Login", controller.Login)         //聊天登录
 		sr.POST("/quickadd", controller.Quickadd)   //快捷语录添加
