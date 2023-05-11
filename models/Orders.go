@@ -8,6 +8,8 @@ type Orders struct {
 	UsageTime int       `json:"usage_time"`
 }
 
+var array []interface{}
+
 func (Orders) TableName() string { return "orders" }
 func GetDepositOrderInformation(UserIdS int) []Orders {
 	var Order []Orders

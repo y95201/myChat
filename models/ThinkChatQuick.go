@@ -13,7 +13,7 @@ type ThinkChatQuick struct {
 	UpdatedAt time.Time `time_format:"2006-01-02 15:04:05"`
 }
 
-func (m *ThinkChatQuick) TableName() string {
+func (m *ThinkChatQuick) ThinkChatQuickTableName() string {
 	return "think_chat_quick"
 }
 func GetChatQuickByList(field, value string) []ThinkChatQuick {

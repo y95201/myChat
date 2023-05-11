@@ -13,7 +13,7 @@
         <form>
             <button id="open">启动</button>
             <button id="close">关闭</button>
-            <input id="input" type="text" value="Hello golang!">
+            <input id="input" type="text" value='{"type":2,"user_id":"4","msg":"9号客服","customer_id":""}'>
             <button id="send">发送</button>
         </form>
     </td><td valign="top" width="50%">
@@ -35,9 +35,9 @@
             if (ws) {
                 return false;
             }
-            ws = new WebSocket("ws://localhost:8888/ws");
+            ws = new WebSocket("ws://localhost:8080/index/wx");
             ws.onopen = function(evt) {
-                print("连接websocket");
+                print("连接websocket12");
             }
             ws.onclose = function(evt) {
                 print("CLOSE");
