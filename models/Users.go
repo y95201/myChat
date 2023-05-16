@@ -47,15 +47,14 @@ type Users struct {
 	DpdatedAt           time.Time `time_format:"2006-01-02 15:04:05"`
 }
 
-//func AddUser(value interface{}) User {
-//	var u User
-//	u.Username = value.(map[string]interface{})["username"].(string)
-//	u.Password = value.(map[string]interface{})["password"].(string)
-//	u.AvatarId = value.(map[string]interface{})["avatar_id"].(string)
-//	ChatDB.Create(&u)
-//	return u
-//}
-//
+//	func AddUser(value interface{}) User {
+//		var u User
+//		u.Username = value.(map[string]interface{})["username"].(string)
+//		u.Password = value.(map[string]interface{})["password"].(string)
+//		u.AvatarId = value.(map[string]interface{})["avatar_id"].(string)
+//		ChatDB.Create(&u)
+//		return u
+//	}
 func SaveAvatarId(u Users) Users {
 	//u.AvatarId = AvatarId
 	ChatDB.Save(&u)
@@ -77,6 +76,13 @@ func GetUserByFieldValue(field string, id int) Users {
 
 	ChatDB.Select(field).Where("id = ?", id).Take(&u)
 
+	return u
+}
+
+// 查询单个数据
+func GetUserByFirstValue(field string, id int) Users {
+	var u Users
+	ChatDB.Select(field).Where("id = ?", id).First(&u)
 	return u
 }
 

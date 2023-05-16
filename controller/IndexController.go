@@ -36,16 +36,24 @@ func Logout(c *gin.Context) {
 	user_service.Logout(c)
 }
 func CeShi(c *gin.Context) {
-	userId := 4
-	chatList := models.ObtainUserChatList(int64(userId))
+	content := ServiceChatlistNewsY(4)
+	//Data := arraySort(content, 'CreatedAt')
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  content,
+	})
+	return
+}
+func ServiceChatlistNewsY(userId int64) map[int][]map[string]interface{} {
+	chatList := models.ObtainUserChatList(userId)
 	item := make(map[int][]map[string]interface{})
-	for _, v := range chatList {
 
+	for _, v := range chatList {
 		personMap := map[string]interface{}{
-			"Uid":       v.Uid,
-			"Uname":     v.Uname,
-			"Pid":       v.Pid,
-			"Pname":     v.Pname,
+			"Uid":       v.UId,
+			"Uname":     v.UName,
+			"Pid":       v.PId,
+			"Pname":     v.PName,
 			"Content":   v.Content,
 			"State":     v.State,
 			"Media":     v.Media,
@@ -53,48 +61,92 @@ func CeShi(c *gin.Context) {
 			"Avatar":    v.Avatar,
 			"Name":      v.Name,
 		}
-		if _, ok := item[v.Uid]; !ok {
-
-			if personMap["Uid"].(int) < 10 {
-				personMap = map[string]interface{}{
-					"Uid":       v.Uid,
-					"Uname":     "钢信宝客服",
-					"Pid":       v.Pid,
-					"Pname":     v.Pname,
-					"Content":   v.Content,
-					"State":     v.State,
-					"Media":     v.Media,
-					"CreatedAt": v.CreatedAt,
-					"Avatar":    "images/IN7gUqUPXXK2AGgepnGVk1fq5rVRZj7NqCSXO4NB.png",
-					"Name":      v.Name,
-				}
-
-				item[0] = []map[string]interface{}{personMap}
+		if _, ok := item[v.UId]; !ok {
+			if v.UId < 10 {
+				personMap["Uname"] = "钢信宝客服"
+				personMap["Avatar"] = "images/IN7gUqUPXXK2AGgepnGVk1fq5rVRZj7NqCSXO4NB.png"
+				item[0] = append(item[0], personMap)
 			} else {
-
-				//item[v.Uid] = []map[string]interface{}{personMap}
+				item[v.UId] = []map[string]interface{}{personMap}
 			}
 		} else {
-			//fmt.Println(v.Pid)
-			//if v.Pid > 10 && v.Pid != userId {
-			//	fmt.Println(personMap)
-			//	item[v.Pid] = append(item[v.Pid], personMap)
-			//}
+			if v.PId > 10 && v.PId != int(userId) {
+				item[v.UId] = append(item[v.UId], personMap)
+			}
 		}
-		//if _, ok := item[v.Uid]; !ok {
-		//	item[v.Uid] = []map[string]interface{}{personMap} // 创建新的slice，将副本添加到其中
-		//} else {
-		//	item[v.Uid] = append(item[v.Uid], personMap) // 直接追加map副本
-		//}
-
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  item,
-	})
-	return
+	//content := make(map[int][]map[string]interface{})
+	//for key, _ := range item {
+	//
+	//	if key != int(userId) {
+	//		data := models.ChatLastPieceData(int64(userId), key, 2)
+	//		if key < 10 {
+	//			data = models.ChatLastPieceData(int64(userId), key, 1)
+	//		}
+	//
+	//		value := map[string]interface{}{}
+	//		if strings.Contains(data.Content, "<img") {
+	//			value["Content"] = "[图片]"
+	//		} else if strings.Contains(data.Content, `{"id":`) {
+	//			value["Content"] = "[订单]"
+	//		} else {
+	//			value["Content"] = data.Content
+	//		}
+	//		value["Count"] = 0
+	//		if int(userId) == data.PId {
+	//			value["Count"] = models.CountUserMessages(int64(userId), key)
+	//		}
+	//
+	//		value["UID"] = key
+	//		if key < 10 {
+	//			value["UAvatar"] = "images/IN7gUqUPXXK2AGgepnGVk1fq5rVRZj7NqCSXO4NB.png"
+	//			value["UName"] = "客服"
+	//			value["Phone"] = ""
+	//		} else {
+	//			user := models.GetUserByFirstValue("name,avatar,phone", key)
+	//			value["UAvatar"] = user.Avatar
+	//			value["UName"] = user.Name
+	//			value["Phone"] = user.Phone
+	//		}
+	//		value["State"] = data.State
+	//		value["created_at"] = data.CreatedAt
+	//		value["media"] = data.Media
+	//		content[key] = append(content[key], value)
+	//	}
+	//}
+	return item
 }
+
+// 自定义排序函数
+//func arraySort(data []map[string]interface{}, keys string) []map[string]interface{} {
+//	timestamps := make([]int64, len(data))
+//
+//	for key, row := range data {
+//		if value, ok := row[keys].(string); ok {
+//			timestamp, err := strconv.ParseInt(value, 10, 64)
+//			if err == nil {
+//				timestamps[key] = timestamp
+//			}
+//		}
+//	}
+//
+//	sort.Slice(data, func(i, j int) bool {
+//		return timestamps[i] > timestamps[j]
+//	})
+//
+//	return data
+//}
+
+//type Data struct {
+//	Count     int
+//	UID       int
+//	Avatar    string
+//	Name      string
+//	Phone     string
+//	State     string
+//	CreatedAt time.Time
+//	Media     string
+//}
 
 //func structToMap(s interface{}) (map[string]interface{}, error) {
 //	result := make(map[string]interface{})

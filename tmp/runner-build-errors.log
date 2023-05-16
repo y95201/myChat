@@ -1,0 +1,3 @@
+# myChat/controller
+controller\IndexController.go:117:9: undefined: log
+controller\IndexController.go:117:21: undefined: key
