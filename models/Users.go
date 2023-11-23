@@ -82,13 +82,30 @@ func GetUserByFieldValue(field string, id int) Users {
 // 查询单个数据
 func GetUserByFirstValue(field string, id int) Users {
 	var u Users
-	ChatDB.Select(field).Where("id = ?", id).First(&u)
+	if err := ChatDB.Table("users").Select(field).Where("id = ?", id).Scan(&u).Error; err != nil {
+		// 处理其他错误
+		return Users{}
+	}
 	return u
 }
 
-//func GetOnlineUserList(uids []float64) []map[string]interface{} {
-//	var results []map[string]interface{}
-//	ChatDB.Where("id IN ?", uids).Find(&results)
-//
-//	return results
-//}
+// 定义 UserCompanyInfo 结构体，包含需要查询的字段
+type UserCompanyInfo struct {
+	CompanyName string `json:"company_name"`
+	Title       string `json:"title"`
+	MainRespFor string `json:"main_resp_for"`
+	Avatar      string `json:"avatar"`
+	Phone       int    `json:"phone"`
+}
+
+func GetUserCompanyRelatedInquiry(customerID int) UserCompanyInfo {
+	var userCompanyInfo UserCompanyInfo
+	// 执行 GORM 查询
+	ChatDB.Table("users").
+		Select("companies.name as company_name, users.name as title, users.main_resp_for, users.avatar, users.phone").
+		Joins("JOIN companies ON users.company_id = companies.id").
+		Where("users.id = ?", customerID).
+		Scan(&userCompanyInfo)
+
+	return userCompanyInfo
+}

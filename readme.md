@@ -2,8 +2,8 @@
  * @Description: 
  * @Author: Y95201
  * @Date: 2022-12-20 10:27:23
- * @LastEditors: Y95201
- * @LastEditTime: 2022-12-20 10:35:46
+ * @LastEditors: y95201 957612196@qq.com
+ * @LastEditTime: 2023-07-28 13:34:23
 -->
 聊天初始
 |-- conf #配置文件
@@ -71,3 +71,5 @@ defer logfile.Close()
 logger := log.New(logfile, "\r\n", log.Ldate|log.Ltime|log.Llongfile)
 logger.Println("hello")
 logger.Fatal("test")
+
+go mod init myChat
